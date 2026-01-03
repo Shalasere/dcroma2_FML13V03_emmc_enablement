@@ -1,0 +1,20 @@
+# dtb_0817d000.dtb
+model: DeepComputing FML13V03
+compatible: deepcomputing,fml13v03,sifive,hifive-unmatched-a00,sifive,fu740-c000,sifive,fu740,eswin,eic7700
+/soc/mmc@0x50460000 status=okay compatible=eswin,sdhci-sdio bus-width=
+/soc/mmc@0x50470000 status=disabled compatible=eswin,sdhci-sdio bus-width=
+/soc/mmc@0x70460000 status=disabled compatible=eswin,sdhci-sdio bus-width=
+/soc/mmc@0x70470000 status=disabled compatible=eswin,sdhci-sdio bus-width=
+/soc/mmc@50450000 status=disabled compatible=eswin,emmc-sdhci-5.1 bus-width=
+/soc/mmc@70450000 status=disabled compatible=eswin,emmc-sdhci-5.1 bus-width=
+
+# dtb_2b0280000.dtb
+model: DeepComputing FML13V03 EVT
+compatible: deepcomputing,fml13v03,sifive,hifive-unmatched-a00,sifive,fu740-c000,sifive,fu740,eswin,eic7700
+/soc/mmc@0x50460000 status=okay compatible=eswin,sdhci-sdio bus-width=
+/soc/mmc@0x50470000 status=disabled compatible=eswin,sdhci-sdio bus-width=
+/soc/mmc@0x70460000 status=disabled compatible=eswin,sdhci-sdio bus-width=
+/soc/mmc@0x70470000 status=disabled compatible=eswin,sdhci-sdio bus-width=
+/soc/mmc@50450000 status=okay compatible=eswin,emmc-sdhci-5.1 bus-width=
+/soc/mmc@70450000 status=disabled compatible=eswin,emmc-sdhci-5.1 bus-width=
+

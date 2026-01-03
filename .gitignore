@@ -24,6 +24,12 @@ sources/
 !vendor/**/*.dtb
 !vendor/**/*.dts
 
+# ignore noisy local artifacts
+captures/
+tmp/
+*.log
+dtbs_all/
+
 # editor cruft
 .vscode/
 .DS_Store
