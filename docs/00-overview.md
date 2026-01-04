@@ -30,3 +30,7 @@ Next docs
 - `docs/06-troubleshooting.md`
 - `docs/07-patch-vendor-image.md`
 - `docs/08-boot-to-emmc.md`
+- `docs/09-uboot-oneshots.md`
+- `docs/10-boot-modes.md`
+- `docs/11-emmc-boot-assets.md`
+- `docs/12-spi-env-discovery.md`

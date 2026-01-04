@@ -1,6 +1,7 @@
 # Boot to eMMC with SD inserted
 
 This runbook uses the patched vendor Debian 15307 image (DTB with `/soc/mmc@50450000` set to `okay`) and keeps the SD card inserted. U-Boot lives in SPI; UART is the control plane.
+This corresponds to Mode B in `docs/10-boot-modes.md`.
 
 Prereqs
 - eMMC written with the vendor SD image (patched DTB). SD still has the same image.
@@ -27,30 +28,56 @@ Extlinux menu (on the SD boot partition)
 - Ensure entries:
   ```
   label sd
-    append root=/dev/mmcblk0p3 ...        # SD root as fallback
+    append root=LABEL=root-15307 ...      # SD root as fallback (use your actual SD root label)
 
   label emmc
-    append root=LABEL=root-emmc ...       # eMMC root
+    append root=PARTUUID=<emmc-root-partuuid> ...  # eMMC root (preferred)
 
   label sd-rescue
-    append root=/dev/mmcblk0p3 ... single
+    append root=LABEL=root-15307 ... single
   ```
 - Keep `default sd` while experimenting; switch to `default emmc` after confidence.
+  - Find the PARTUUID with:
+    ```
+    blkid -s PARTUUID -o value /dev/disk/by-label/root-emmc
+    ```
+
+Tip: you can generate/update the `emmc` entry by copying your current default stanza and rewriting
+`root=` via:
+```
+sudo ./scripts/setup_emmc_extlinux.sh --root-label root-emmc --entry-label emmc
+```
+This uses `root=PARTUUID=...` to avoid label collisions.
 
 Boot steps
 1) Power on with SD inserted; watch UART.
 2) In the extlinux menu, choose `emmc`.
 3) Verify after boot:
-   - `findmnt -no SOURCE /` → `root-emmc`
-   - `findmnt -no SOURCE /boot` → `boot-emmc`
+   - `findmnt -no SOURCE /` -> `root-emmc`
+   - `findmnt -no SOURCE /boot` -> the **SD boot** label (e.g., `boot-15307`)
    - `lsblk` shows both SD and eMMC.
+   - Optional: run `./scripts/verify_boot_state.sh` to catch common label/mount issues.
+
+Avoid the /boot trap in this phase
+- In this runbook, U-Boot is reading `/boot/extlinux/extlinux.conf` and kernel/initrd from the SD.
+  If the eMMC root's `/etc/fstab` mounts `/boot` from eMMC (`boot-emmc`), then future kernel updates
+  inside the eMMC root will update the *wrong* `/boot` (the eMMC one), and the next boot may silently
+  keep using the older SD kernel/initrd.
+- Recommended: in the eMMC root, ensure `/boot` mounts the SD boot label while you are still
+  booting extlinux from SD.
+  Example (edit inside the eMMC root):
+  
+  1) `sudo mount /dev/disk/by-label/root-emmc /mnt/emmc`
+  2) Edit `/mnt/emmc/etc/fstab` so `/boot` uses `LABEL=boot-15307` (or your SD boot label)
+  3) `sudo umount /mnt/emmc`
 
 If you drop to initramfs because `root-15307` is missing
 - The SD entry was used. Reboot and pick `emmc`, or change `default` in `extlinux.conf` to `emmc`.
 - If labels are wrong, relabel from initramfs:
   ```
+  # Prefer by-label if present (more robust than /dev/mmcblk* numbering)
   mkdir -p /newroot
-  mount /dev/mmcblk0p3 /newroot
+  mount /dev/disk/by-label/root-emmc /newroot || mount /dev/mmcblk0p3 /newroot
   export LD_LIBRARY_PATH=/newroot/lib/riscv64-linux-gnu:/newroot/usr/lib/riscv64-linux-gnu:/newroot/lib:/newroot/usr/lib
   /newroot/sbin/e2label /dev/mmcblk0p3 root-emmc
   /newroot/sbin/e2label /dev/mmcblk0p1 boot-emmc

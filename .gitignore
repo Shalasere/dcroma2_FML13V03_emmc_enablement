@@ -19,16 +19,15 @@ sources/
 *.xz
 *.zst
 
-# allow hardware capture and vendor DTBs in version control
-!captures/**/*.dtb
-!vendor/**/*.dtb
-!vendor/**/*.dts
-
-# ignore noisy local artifacts
+# ignore noisy local artifacts (captures are intentionally local by default)
 captures/
 tmp/
 *.log
 dtbs_all/
+
+# vendor DTB/DTS snapshots can be versioned
+!vendor/**/*.dtb
+!vendor/**/*.dts
 
 # editor cruft
 .vscode/

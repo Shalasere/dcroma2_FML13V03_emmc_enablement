@@ -1,6 +1,7 @@
 # Hardware capture
 
-Hardware captures are committed under `captures/` so changes can be audited against real board logs.
+Hardware captures are written under `captures/` for local debugging. By default the repo ignores
+`captures/` to avoid constant churn from timestamped logs.
 
 What to capture
 - UART boot log for each test run.
@@ -31,5 +32,7 @@ This creates a timestamped folder under `captures/<distro>/` with:
 - `live.dts` (if `dtc` is available)
 
 UART logs
-- Keep UART logs locally; the repo `.gitignore` skips `captures/` and `.log` files to avoid churn. If you need to share a snippet, drop it under `captures/<distro>/.../` temporarily or summarize it in a README.
+- Keep UART logs locally.
+- If you need to share evidence, copy the relevant files into a new, explicitly versioned folder under
+  `vendor/<distro>/.../` or attach them to an issue/PR. (Avoid committing raw, high-volume logs.)
 - If you use a terminal logger, note baudrate and settings in a `uart.meta` file next to the log.
