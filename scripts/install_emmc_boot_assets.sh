@@ -68,10 +68,21 @@ fi
 mkdir -p "$mount_point"
 
 mounted=0
+boot_real=$(readlink -f "$boot_dev" 2>/dev/null || echo "$boot_dev")
 if ! mountpoint -q "$mount_point"; then
   mount "$boot_dev" "$mount_point"
   mounted=1
 fi
+
+# If mount_point was already mounted, ensure it is actually the eMMC boot partition we expect.
+src=$(findmnt -no SOURCE "$mount_point" 2>/dev/null || true)
+src_real=$(readlink -f "$src" 2>/dev/null || echo "$src")
+if [[ -n "$src" && "$src_real" != "$boot_real" ]]; then
+  echo "Mountpoint $mount_point is already mounted from $src (resolved: $src_real), not $boot_dev (resolved: $boot_real)." >&2
+  echo "Refusing to continue to avoid copying boot assets to the wrong filesystem." >&2
+  exit 1
+fi
+
 
 if [[ $purge -eq 1 ]]; then
   if [[ "$mount_point" == "/" || "$mount_point" == "/boot" ]]; then

@@ -58,7 +58,7 @@ META="$DIST/metadata.txt"
 } > "$META"
 
 if command -v sha256sum >/dev/null 2>&1; then
-  (cd "$DIST" && sha256sum $(find . -type f \\( -name '*.bin' -o -name '*.dtb' -o -name 'Image' -o -name 'metadata.txt' \\))) > "$DIST/SHA256SUMS" || true
+  (cd "$DIST" && find . -type f ! -name 'SHA256SUMS' -exec sha256sum {} + | sort -k2) > "$DIST/SHA256SUMS" || true
 fi
 
 echo "Release bundle created: $DIST"

@@ -11,7 +11,7 @@ Goals
 
 Current field status (2026-01-02)
 - Vendor Debian image 15307 with DTB patched (`/soc/mmc@50450000` set to `okay`) now enumerates the eMMC reliably.
-- With SD inserted, U-Boot's extlinux menu includes an `emmc` entry that boots `root=LABEL=root-emmc`; default is still the SD entry.
+- With SD inserted, U-Boot's extlinux menu includes an `emmc` entry that boots `root=PARTUUID=<emmc-root-partuuid>`; default is still the SD entry. (preferred; older runs used `root=LABEL=root-emmc`).
 - eMMC root (`root-emmc`) has UART login enabled via `serial-getty@ttyS0`; SPI env readout via `fw_printenv` is still failing with the current offsets.
 - See `docs/08-boot-to-emmc.md` for the exact boot/runbook with SD inserted.
 

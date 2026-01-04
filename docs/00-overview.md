@@ -12,7 +12,7 @@ Workflow summary
 Current validated state (2026-01-02)
 - Baseline: vendor Debian 15307 image with DTB patched to set `/soc/mmc@50450000` to `status = "okay"`.
 - Results: Linux now sees the eMMC (mmc host + block device) with SD inserted; UART console available on `ttyS0`.
-- Bootflow: extlinux menu (on SD boot media) has `sd`, `emmc`, and `sd-rescue` entries; default remains `sd`. Selecting `emmc` boots `root=LABEL=root-emmc`.
+- Bootflow: extlinux menu (on SD boot media) has `sd`, `emmc`, and `sd-rescue` entries; default remains `sd`. Selecting `emmc` boots `root=PARTUUID=<emmc-root-partuuid>` (preferred; older runs used `root=LABEL=root-emmc`).
 - Known gap: `fw_printenv` fails against the current SPI offsets (mtd0/mtd1 @ 0x4a0000); avoid writing to SPI until offsets are confirmed.
 
 Key principles

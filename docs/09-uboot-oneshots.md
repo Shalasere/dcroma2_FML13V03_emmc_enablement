@@ -6,6 +6,7 @@ This page is intentionally **read-only**: these commands do not write SPI env. T
 ## 1) Check whether U-Boot sees the eMMC
 
 At the UART prompt:
+Note: `mmc dev 0` is just an example. Use `mmc list` to identify which mmc index is eMMC vs SD on your board.
 ```
 mmc list
 mmc dev 0

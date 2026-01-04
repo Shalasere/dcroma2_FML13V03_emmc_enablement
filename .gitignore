@@ -32,3 +32,7 @@ dtbs_all/
 # editor cruft
 .vscode/
 .DS_Store
+
+# python cache
+__pycache__/
+*.pyc

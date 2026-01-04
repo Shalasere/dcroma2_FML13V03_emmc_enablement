@@ -23,6 +23,11 @@ What this does
 - Writes/updates an extlinux `emmc` stanza with `root=PARTUUID=<root-emmc>`.
 - Optionally sets `DEFAULT emmc` for the eMMC extlinux file.
 
+Drift warning (Mode B -> Mode C)
+- While you are still booting kernel/initrd from SD (Mode B), any kernel/initramfs update will land
+  on the SD `/boot`. If you intend to boot from eMMC later (Mode C), re-run this staging step after
+  such updates so the eMMC `/boot` stays in sync.
+
 Manual steps (if you prefer)
 ```
 sudo mkdir -p /mnt/emmc-boot
