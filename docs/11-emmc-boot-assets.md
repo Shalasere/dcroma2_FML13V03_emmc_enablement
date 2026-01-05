@@ -60,3 +60,7 @@ Validate without SPI writes
   sysboot mmc 0:1 any ${scriptaddr} /extlinux/extlinux.conf
   ```
 - If that boots, Mode C is viable once SPI env offsets are known (for persistent boot order).
+
+Next step
+- For the final "repeatable" checklist (prove boot source, fix GUID collisions, and optionally persist boot order),
+  see `docs/13-repeatable.md`.

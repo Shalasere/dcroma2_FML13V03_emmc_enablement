@@ -34,3 +34,4 @@ Next docs
 - `docs/10-boot-modes.md`
 - `docs/11-emmc-boot-assets.md`
 - `docs/12-spi-env-discovery.md`
+- `docs/13-repeatable.md`

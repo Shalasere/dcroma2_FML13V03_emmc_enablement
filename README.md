@@ -43,3 +43,4 @@ Key deep-dives:
 - `docs/10-boot-modes.md` for the boot modes matrix and /boot ownership rules.
 - `docs/11-emmc-boot-assets.md` for staging eMMC boot assets (Mode C).
 - `docs/12-spi-env-discovery.md` for read-only SPI env discovery steps.
+- `docs/13-repeatable.md` for the "prove boot source + remove GUID ambiguity + persist boot order" finish line.
