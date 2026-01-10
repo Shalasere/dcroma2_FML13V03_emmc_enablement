@@ -23,6 +23,23 @@ Ownership rules (do not mix)
 - Mode C: `/boot` must be the eMMC boot partition. Once U-Boot is booting from eMMC, stop mounting
   `/boot` from SD.
 
+Keeping SD inserted but non-bootable (recommended for Mode C)
+U-Boot's default `boot_targets` prefers SD over eMMC, so with SD inserted it will usually boot SD
+unless SD is made non-bootable. The reversible way is to rename SD's extlinux directory:
+```
+sudo mount -L boot-15307 /mnt/sdboot
+sudo mv /mnt/sdboot/extlinux /mnt/sdboot/extlinux.SD_DISABLED.$(date +%s)
+sudo sync
+sudo umount /mnt/sdboot
+```
+To restore SD boot later:
+```
+sudo mount -L boot-15307 /mnt/sdboot
+sudo mv /mnt/sdboot/extlinux.SD_DISABLED.* /mnt/sdboot/extlinux
+sudo sync
+sudo umount /mnt/sdboot
+```
+
 Quick verification
 ```
 cat /proc/cmdline

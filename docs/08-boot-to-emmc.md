@@ -58,6 +58,15 @@ Boot steps
    - `lsblk` shows both SD and eMMC.
    - Optional: run `./scripts/verify_boot_state.sh` to catch common label/mount issues.
 
+If eMMC boots but you still get no UART login
+- The quickest fix that resolved this on the board was to align eMMC userspace with the known-good SD install:
+  ```
+  sudo mount -L root-emmc /mnt/emmc
+  sudo rsync -aHAXx --numeric-ids --delete --info=progress2 / /mnt/emmc/
+  sudo umount /mnt/emmc
+  ```
+- After rsync, fix `/mnt/emmc/etc/fstab` for `root-emmc`/`boot-emmc` and clear `machine-id` if you want a unique identity.
+
 Avoid the /boot trap in this phase
 - In this runbook, U-Boot is reading `/boot/extlinux/extlinux.conf` and kernel/initrd from the SD.
   If the eMMC root's `/etc/fstab` mounts `/boot` from eMMC (`boot-emmc`), then future kernel updates
@@ -87,3 +96,8 @@ If you drop to initramfs because `root-15307` is missing
 
 SPI env note
 - `fw_printenv` currently fails with the vendor offsets (mtd0/mtd1 @ 0x4a0000). Avoid writes to SPI until the correct layout is identified.
+
+When you want eMMC to win while SD stays inserted
+- U-Boot prefers SD by default (`boot_targets=usb mmc1 mmc0 nvme`).
+- To keep SD inserted but force eMMC boot, disable SD's extlinux directory as described in
+  `docs/10-boot-modes.md` (reversible).

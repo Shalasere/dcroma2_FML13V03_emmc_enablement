@@ -61,6 +61,15 @@ findmnt -no TARGET,SOURCE,FSTYPE /boot
 ```
 If needed, edit /etc/fstab so /boot is LABEL=boot-emmc, then reboot and re-check.
 
+If eMMC userspace diverged from SD
+- If UART login is still missing or systemd behavior differs, a full userspace align from the SD root is a reliable reset:
+  ```
+  sudo mount -L root-emmc /mnt/emmc
+  sudo rsync -aHAXx --numeric-ids --delete --info=progress2 / /mnt/emmc/
+  sudo umount /mnt/emmc
+  ```
+  Then fix `/mnt/emmc/etc/fstab` (labels) and clear `machine-id` if you want a unique identity.
+
 Phase 4 (optional) - Persist boot order in SPI env
 Only do this after offsets are proven:
 1) Collect U-Boot evidence (printenv, env info).
@@ -74,6 +83,10 @@ Definition of done
 - extlinux on eMMC is actually used (proved by UART log and/or SD-less boot).
 - PARTUUIDs are unique across inserted media.
 - Optional: SPI env is readable and boot order is persistent.
+
+Alternative to SPI env while SD is inserted
+- If you want deterministic eMMC boot without touching SPI env, keep SD non-bootable by renaming its
+  `/boot/extlinux` directory (see `docs/10-boot-modes.md`).
 
 Optional (session only) - keep the system awake while working
 If autosuspend is enabled and you want to keep the system alive for a session:

@@ -9,11 +9,13 @@ Goals
 - Make changes as patch series against a known vendor baseline.
 - For simple SD->eMMC boot testing, keep kernel/initrd on SD and point root= to eMMC using `scripts/setup_emmc_extlinux.sh`.
 
-Current field status (2026-01-02)
+Current field status (2026-01-10)
 - Vendor Debian image 15307 with DTB patched (`/soc/mmc@50450000` set to `okay`) now enumerates the eMMC reliably.
-- With SD inserted, U-Boot's extlinux menu includes an `emmc` entry that boots `root=PARTUUID=<emmc-root-partuuid>`; default is still the SD entry. (preferred; older runs used `root=LABEL=root-emmc`).
-- eMMC root (`root-emmc`) has UART login enabled via `serial-getty@ttyS0`; SPI env readout via `fw_printenv` is still failing with the current offsets.
-- See `docs/08-boot-to-emmc.md` for the exact boot/runbook with SD inserted.
+- U-Boot is in SPI (`sf probe` works). Default `boot_targets` is `usb mmc1 mmc0 nvme`, so SD wins if it is bootable.
+- eMMC boots with SD inserted by keeping SD non-bootable (renamed `/boot/extlinux` on SD) and using eMMC `/boot` + `root=LABEL=root-emmc`.
+- UART login on eMMC is stable after aligning eMMC userspace with SD via `rsync -aHAXx --numeric-ids --delete / /mnt/emmc/` (see `docs/06-troubleshooting.md`).
+- SPI env readout via `fw_printenv` is still failing with the current offsets.
+- See `docs/08-boot-to-emmc.md` for the exact runbook with SD inserted.
 
 Quick start (high level)
 Fast path (vendor image, SD inserted, eMMC root):
