@@ -23,6 +23,7 @@ python scripts/auto_patch_vendor_image.py --image "/path/to/sdcard.emmcfix.img" 
   --backup-dtb vendor/debian/15307-debian14-desktop-sdcard/dtbs_all/dtb_auto.orig.dtb \
   --out-dtb vendor/debian/15307-debian14-desktop-sdcard/dtbs_all/dtb_auto.patched.dtb
 ```
+Note: `dtbs_all/` is ignored by git and is meant for local, temporary artifacts. Use any local path you prefer.
 
 This script scans DTB blobs in the image via `mmap`, filters by DTB `model` containing `FML13V03`,
 and patches the first matching `/soc/mmc@50450000/status` it finds.

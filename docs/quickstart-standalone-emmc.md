@@ -26,11 +26,20 @@ lsblk -e7 -o NAME,SIZE,MODEL,LABEL,PARTUUID,MOUNTPOINTS
 Do not assume `mmcblk0` vs `mmcblk1` without confirming the model/size/mountpoints.
 
 Step 3: Clone SD -> eMMC (destructive)
-Use the defensive flasher on the running SD system:
+Prefer cloning from a host image file when possible. If cloning from the running SD system,
+do it immediately after boot and avoid additional writes.
+
+Use the defensive flasher:
 ```
 sudo ./scripts/flash_emmc.sh --source /dev/mmcblk1 --target /dev/mmcblk0 --allow-mounted-source
 ```
 Replace the device names with your confirmed SD (source) and eMMC (target).
+
+If the target is larger than the source, relocate the backup GPT header:
+```
+sudo sgdisk -e /dev/mmcblk0
+sudo partprobe /dev/mmcblk0 || true
+```
 
 Step 4: Relabel the eMMC partitions
 ```
@@ -68,7 +77,9 @@ Power off, remove SD, then boot. Verify:
 ./scripts/verify_boot_state.sh
 ```
 
-Optional: If you plan to re-insert the SD, avoid PARTUUID collisions by regenerating the SD GUIDs:
+Post-success hardening (optional)
+If you plan to re-insert the SD, avoid PARTUUID collisions by regenerating the SD GUIDs.
+Only do this after you are booted from eMMC (or on a host PC), and never on the active root device:
 ```
 sudo sgdisk -G /dev/mmcblk1
 ```

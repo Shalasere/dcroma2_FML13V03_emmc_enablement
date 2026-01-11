@@ -24,6 +24,7 @@ source_path=""
 target=""
 allow_mounted_source=0
 bs="4M"
+note_gpt_fix=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -90,8 +91,10 @@ if lsblk -n -o MOUNTPOINTS "$target" | grep -q '\S'; then
   exit 1
 fi
 
+source_mounted=0
 if [[ -b "$source_path" ]]; then
   if lsblk -n -o MOUNTPOINTS "$source_path" | grep -q '\S'; then
+    source_mounted=1
     if [[ $allow_mounted_source -ne 1 ]]; then
       echo "Source has mounted partitions. Rerun with --allow-mounted-source to continue." >&2
       lsblk -o NAME,MOUNTPOINTS "$source_path" >&2
@@ -114,6 +117,9 @@ if command -v blockdev >/dev/null 2>&1; then
     echo "Source is larger than target (source: $source_size bytes, target: $target_size bytes)." >&2
     exit 1
   fi
+  if [[ -n "$target_size" && -n "$source_size" && "$target_size" -gt "$source_size" ]]; then
+    note_gpt_fix=1
+  fi
 fi
 
 echo "About to write:"
@@ -125,10 +131,21 @@ if [[ "$confirm" != "$target" ]]; then
   exit 1
 fi
 
+if [[ $source_mounted -eq 1 ]]; then
+  echo "WARNING: source is mounted; the clone may be inconsistent if the filesystem is changing." >&2
+  echo "Prefer an unmounted source or a host image file when possible." >&2
+fi
+
 dd if="$source_path" of="$target" bs="$bs" conv=fsync status=progress
 sync
 if command -v blockdev >/dev/null 2>&1; then
   blockdev --flushbufs "$target" || true
+fi
+
+if [[ $note_gpt_fix -eq 1 ]]; then
+  echo "NOTE: source is smaller than target; relocate backup GPT with:" >&2
+  echo "  sudo sgdisk -e $target" >&2
+  echo "  sudo partprobe $target || true" >&2
 fi
 
 echo "Flash complete: $source_path -> $target"
