@@ -22,6 +22,7 @@ Key principles
 - Everything is reproducible from a recorded vendor baseline.
 
 Next docs
+- `docs/quickstart-standalone-emmc.md`
 - `docs/01-closed-loop.md`
 - `docs/02-capture.md`
 - `docs/03-tooling.md`

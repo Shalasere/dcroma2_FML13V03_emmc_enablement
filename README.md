@@ -12,13 +12,14 @@ Goals
 Current field status (2026-01-10)
 - Vendor Debian image 15307 with DTB patched (`/soc/mmc@50450000` set to `okay`) now enumerates the eMMC reliably.
 - U-Boot is in SPI (`sf probe` works). Default `boot_targets` is `usb mmc1 mmc0 nvme`, so SD wins if it is bootable.
-- eMMC boots with SD inserted by keeping SD non-bootable (renamed `/boot/extlinux` on SD) and using eMMC `/boot` + `root=LABEL=root-emmc`.
+- eMMC boots with SD inserted by keeping SD non-bootable (renamed `/boot/extlinux` on SD) and using eMMC `/boot` + `root=PARTUUID=<emmc-root-partuuid>`.
 - UART login on eMMC is stable after aligning eMMC userspace with SD via `rsync -aHAXx --numeric-ids --delete / /mnt/emmc/` (see `docs/06-troubleshooting.md`).
 - SPI env readout via `fw_printenv` is still failing with the current offsets.
 - See `docs/08-boot-to-emmc.md` for the exact runbook with SD inserted.
 
 Quick start (high level)
 Fast path (vendor image, SD inserted, eMMC root):
+0) Standalone eMMC quickstart (no Mode B): `docs/quickstart-standalone-emmc.md`.
 1) Patch the vendor image DTB (host): `docs/07-patch-vendor-image.md`.
 2) Write the patched image to SD and eMMC, label partitions uniquely.
 3) Add the extlinux `emmc` entry on SD: `sudo ./scripts/setup_emmc_extlinux.sh`.
@@ -36,6 +37,8 @@ Repo layout
 - `docs/` workflow, capture, build, and troubleshooting docs.
 - `scripts/` bash tooling for capture/build/packaging.
 - `vendor/` vendor image metadata and audit notes.
+
+Note: When sharing a zip/tarball, prefer `git archive` or remove `.git/` so reviewers do not receive repo history.
 
 Note: `patches/`, `configs/`, and `dts/` are intended future additions once the bring-up work moves from
 "vendor image DTB patching" into a source-based patch series.

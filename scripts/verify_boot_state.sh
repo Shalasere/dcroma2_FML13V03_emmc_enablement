@@ -8,6 +8,20 @@ echo "== kernel cmdline =="
 cat /proc/cmdline || true
 echo
 
+echo "== device tree (mmc@50450000) =="
+dt_status="/proc/device-tree/soc/mmc@50450000/status"
+if [[ -r "$dt_status" ]]; then
+  status=$(tr -d '\0' < "$dt_status" || true)
+  if [[ -n "$status" ]]; then
+    echo "status=${status}"
+  else
+    echo "status=<empty>"
+  fi
+else
+  echo "Missing $dt_status (DT node not found or not readable)."
+fi
+echo
+
 echo "== mounts =="
 findmnt -no TARGET,SOURCE,FSTYPE / /boot 2>/dev/null || true
 echo

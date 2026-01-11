@@ -1,6 +1,17 @@
 # Patch a vendor image DTB
 
 This process patches the DTB inside a vendor image so the eMMC controller is enabled.
+The patching scripts modify the image file in place, so make a copy first.
+
+Example (Linux/macOS):
+```
+cp sdcard.img sdcard.emmcfix.img
+```
+
+Example (Windows PowerShell):
+```
+Copy-Item sdcard.img sdcard.emmcfix.img
+```
 
 Prereqs
 - Vendor image file (e.g. `sdcard.img`)
@@ -8,7 +19,7 @@ Prereqs
 
 Optional (recommended): auto-patch without manual offset selection
 ```
-python scripts/auto_patch_vendor_image.py --image "/path/to/sdcard.img" --path /soc/mmc@50450000 --status okay \
+python scripts/auto_patch_vendor_image.py --image "/path/to/sdcard.emmcfix.img" --path /soc/mmc@50450000 --status okay \
   --backup-dtb vendor/debian/15307-debian14-desktop-sdcard/dtbs_all/dtb_auto.orig.dtb \
   --out-dtb vendor/debian/15307-debian14-desktop-sdcard/dtbs_all/dtb_auto.patched.dtb
 ```
@@ -34,7 +45,7 @@ Step 2: Patch the DTB in the image
 Linux/macOS:
 ```
 python scripts/patch_dtb_status.py \
-  --image "/path/to/sdcard.img" \
+  --image "/path/to/sdcard.emmcfix.img" \
   --offset 0x0817d000 \
   --path /soc/mmc@50450000 \
   --status okay \
@@ -45,7 +56,7 @@ python scripts/patch_dtb_status.py \
 Windows (cmd.exe caret continuation):
 ```
 python scripts/patch_dtb_status.py ^
-  --image "C:\\path\\to\\sdcard.img" ^
+  --image "C:\\path\\to\\sdcard.emmcfix.img" ^
   --offset 0x0817d000 ^
   --path /soc/mmc@50450000 ^
   --status okay ^
@@ -62,13 +73,18 @@ Expected: `/soc/mmc@50450000 status=okay`.
 
 Post-patch boot/run (with SD inserted)
 1) Write the patched image to SD and to eMMC (e.g., `dd` from the SD booted system to `/dev/mmcblk0`).
-2) Ensure labels are unique: on the eMMC set `boot-emmc` and `root-emmc`:
+2) After booting the patched SD image, confirm the live DT status:
+   ```
+   tr -d '\0' </proc/device-tree/soc/mmc@50450000/status; echo
+   ```
+   Expected: `okay`.
+3) Ensure labels are unique: on the eMMC set `boot-emmc` and `root-emmc`:
    ```
    sudo e2label /dev/mmcblk0p1 boot-emmc
    sudo e2label /dev/mmcblk0p3 root-emmc
    ```
    Leave the SD as `boot-15307`/`root-15307` (or similar) so labels don't collide.
-3) On the SD boot partition (`/boot` when booted from SD, or mount the SD boot as `/mnt/sdboot`), ensure `extlinux.conf` has an entry like:
+4) On the SD boot partition (`/boot` when booted from SD, or mount the SD boot as `/mnt/sdboot`), ensure `extlinux.conf` has an entry like:
    ```
    label emmc
      # NOTE: linux/initrd/fdt* paths should match your existing working `sd` entry.
@@ -83,7 +99,7 @@ Post-patch boot/run (with SD inserted)
    ```
    blkid -s PARTUUID -o value /dev/disk/by-label/root-emmc
    ```
-4) Boot with the SD inserted and pick the `emmc` menu entry over UART. Verify:
+5) Boot with the SD inserted and pick the `emmc` menu entry over UART. Verify:
    - `findmnt -no SOURCE /` shows `root-emmc` (eMMC).
    - `findmnt -no SOURCE /boot` shows the **SD boot** label (e.g., `boot-15307`).
      In this phase, `/boot` should stay on SD so kernel/initramfs updates land on the media that

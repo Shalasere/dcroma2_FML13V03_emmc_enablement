@@ -53,10 +53,10 @@ Or run:
 
 Interpretation
 - Mode B looks like:
-  - `/proc/cmdline` root=LABEL=root-emmc (or PARTUUID of eMMC root)
+  - `/proc/cmdline` root=PARTUUID=<emmc-root-partuuid> (preferred; LABEL works if unique)
   - `/` -> root-emmc
   - `/boot` -> boot-15307 (SD)
 - Mode C looks like:
-  - `/proc/cmdline` root=LABEL=root-emmc (or PARTUUID of eMMC root)
+  - `/proc/cmdline` root=PARTUUID=<emmc-root-partuuid> (preferred; LABEL works if unique)
   - `/` -> root-emmc
   - `/boot` -> boot-emmc (eMMC)

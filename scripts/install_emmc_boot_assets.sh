@@ -13,7 +13,8 @@ set -euo pipefail
 #     [--mount-point /mnt/emmc-boot] \
 #     [--copy-from <label>] \
 #     [--default] \
-#     [--purge]
+#     [--purge] \
+#     [--allow-self-sync]
 
 boot_label="boot-emmc"
 root_label="root-emmc"
@@ -23,6 +24,7 @@ mount_point="/mnt/emmc-boot"
 copy_from=""
 set_default=0
 purge=0
+allow_self_sync=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -34,6 +36,7 @@ while [[ $# -gt 0 ]]; do
     --copy-from) copy_from="$2"; shift 2 ;;
     --default) set_default=1; shift ;;
     --purge) purge=1; shift ;;
+    --allow-self-sync) allow_self_sync=1; shift ;;
     -h|--help)
       sed -n '1,80p' "$0"
       exit 0
@@ -80,6 +83,14 @@ src_real=$(readlink -f "$src" 2>/dev/null || echo "$src")
 if [[ -n "$src" && "$src_real" != "$boot_real" ]]; then
   echo "Mountpoint $mount_point is already mounted from $src (resolved: $src_real), not $boot_dev (resolved: $boot_real)." >&2
   echo "Refusing to continue to avoid copying boot assets to the wrong filesystem." >&2
+  exit 1
+fi
+
+boot_src=$(findmnt -no SOURCE "$src_boot" 2>/dev/null || true)
+boot_src_real=$(readlink -f "$boot_src" 2>/dev/null || echo "$boot_src")
+if [[ -n "$boot_src" && "$boot_src_real" == "$boot_real" && $allow_self_sync -ne 1 ]]; then
+  echo "Source $src_boot is already on $boot_dev (resolved: $boot_real)." >&2
+  echo "Refusing to sync a filesystem onto itself. Use --allow-self-sync to override." >&2
   exit 1
 fi
 

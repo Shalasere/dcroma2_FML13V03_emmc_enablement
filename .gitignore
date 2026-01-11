@@ -25,9 +25,10 @@ tmp/
 *.log
 dtbs_all/
 
-# vendor DTB/DTS snapshots can be versioned
+# vendor DTB/DTS snapshots can be versioned (dtbs_all remains local-only)
 !vendor/**/*.dtb
 !vendor/**/*.dts
+vendor/**/dtbs_all/
 
 # editor cruft
 .vscode/
